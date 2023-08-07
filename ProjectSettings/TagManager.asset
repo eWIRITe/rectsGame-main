@@ -7,6 +7,9 @@ TagManager:
   - audio_sourse
   - Mouse
   - AgainButton
+  - pony_mooving_sourse
+  - angry_pony
+  - kind_pony
   layers:
   - Default
   - TransparentFX

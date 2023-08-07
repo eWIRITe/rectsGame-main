@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
+    public Camera main_camera;
+
     public static GameController _GC;
 
     public GameObject Loose_screen;
@@ -75,30 +77,32 @@ public class GameController : MonoBehaviour
         }
         else if (Input.GetMouseButtonDown(0))
         {
-            Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(mousePosition, new Vector3(0, 0, 1), 1000.0f, ~raycastIgnoreLayer);
-
-            Debug.DrawRay(mousePosition, new Vector3(0, 0, 1));
-
-            if (hit.collider != null)
+            Ray ray = main_camera.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, 1000.0f, ~raycastIgnoreLayer))
             {
-                Debug.Log(hit.collider.gameObject.tag);
-                if (hit.collider.gameObject.tag == "Mouse")
+                if (hit.collider != null)
                 {
-                    hit.collider.gameObject.GetComponent<Mouse>().Die();
-                }
-                else if (hit.collider.gameObject.tag == "AgainButton")
-                {
-                    playing = true;
-                    _score = 0;
+                    Debug.Log(hit.collider.gameObject.tag);
+                    if (hit.collider.gameObject.tag == "angry_pony")
+                    {
+                        hit.collider.gameObject.GetComponent<Pony>().Die(true);
+                    }
+                    else if (hit.collider.gameObject.tag == "kind_pony")
+                    {
+                        hit.collider.gameObject.GetComponent<Pony>().Die(false);
+                    }
+                    else if (hit.collider.gameObject.tag == "AgainButton")
+                    {
+                        playing = true;
+                        _score = 0;
 
-                    int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-                    SceneManager.LoadScene(currentSceneIndex);
+                        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+                        SceneManager.LoadScene(currentSceneIndex);
+                    }
                 }
             }
         }
-        
-        
     }
     void HandleTouchInput(Vector2 touchPosition)
     {
@@ -110,10 +114,13 @@ public class GameController : MonoBehaviour
         RaycastHit2D[] hits = Physics2D.RaycastAll(touchWorldPosition2D, Vector2.zero);
         foreach (RaycastHit2D hit in hits)
         {
-            if (hit.collider != null && hit.collider.CompareTag("Mouse"))
+            if (hit.collider.gameObject.tag == "angry_pony")
             {
-                // Если объект с тегом "Мышь" найден, уничтожаем его
-                hit.collider.gameObject.GetComponent<Mouse>().Die();
+                hit.collider.gameObject.GetComponent<Pony>().Die(true);
+            }
+            else if (hit.collider.gameObject.tag == "kind_pony")
+            {
+                hit.collider.gameObject.GetComponent<Pony>().Die(false);
             }
             else if (hit.collider.gameObject.tag == "AgainButton")
             {
